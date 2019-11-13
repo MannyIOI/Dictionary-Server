@@ -94,8 +94,8 @@ class ClientHandler extends Thread {
         }
         try {
         // closing resources
-        this.dis.close();
-        this.dos.close();
+            this.dis.close();
+            this.dos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
