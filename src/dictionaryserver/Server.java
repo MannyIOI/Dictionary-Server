@@ -7,6 +7,7 @@ package dictionaryserver;
 
 import Model.Database;
 import Model.User;
+import Model.Word;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,26 +79,42 @@ class ClientHandler extends Thread {
                     break;
                 }
                 System.out.println("received " + received);
-                JSONObject jsonObject = new JSONObject(received);
+                JSONObject jsonRequest = new JSONObject(received);
 
-                switch (jsonObject.getString("query")) {
+                JSONObject jsonResult = new JSONObject();
+                switch (jsonRequest.getString("query")) {
                     case "login":
-                        boolean isValid = Database.getDatabase().login(new User(jsonObject.getString("email"),jsonObject.getString("password")));
+                        boolean isValid = Database.getDatabase().login(new User(jsonRequest.getString("email"),jsonRequest.getString("password")));
                         if(isValid){
-                            System.out.println("You've logged in");
+                            jsonResult.put("res", true);
+                            jsonResult.put("message", "Valid Login information");
                         }
                         else {
-                            System.out.println("Wrong username and password");
+                            jsonResult.put("res", false);
+                            jsonResult.put("message", "Username or password incorrect");
                         }
+                        dos.writeUTF(jsonResult.toString());
                         break;
-                    case "Search":
-                        System.out.println("You're in search");
+                    case "search":
+//                        System.out.println(Database.getDatabase().searchWord(new Word(jsonRequest.getString("searchKey"))));
+                        jsonResult.put("res", Database.getDatabase().searchWord(new Word("%"+jsonRequest.getString("searchKey")+"%")));
+                        jsonResult.put("message", "These are the search results");
+                        dos.writeUTF(jsonResult.toString());
                         break;
-                    case "AddWord":
-                        System.out.println("You're in add word");
+                    case "addWord":
+                        jsonResult.put("res", "addedWord");
+                        jsonResult.put("message", "This is the added word");
+                        dos.writeUTF(jsonResult.toString());
+                        break;
+                    case "listAllWords":
+                        jsonResult.put("res", "allTheWordsList");
+                        jsonResult.put("message", "This is the list of all the words");
+                        dos.writeUTF(jsonResult.toString());
                         break;
                     default:
-                        dos.writeUTF("Invalid input");
+                        jsonResult.put("res", "ERROR INPUT");
+                        jsonResult.put("message", "Invalid input is provided");
+                        dos.writeUTF(jsonResult.toString());
                         break;
                 }
             } catch (IOException| JSONException | SQLException e) {

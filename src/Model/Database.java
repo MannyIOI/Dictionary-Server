@@ -75,6 +75,18 @@ public class Database {
         return new Word(rs.getString(0), rs.getString(1));
     }
     
+    public ArrayList<Word> searchWord(Word word) throws SQLException{
+        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `word` WHERE `word` LIKE ?");
+        pstmt.setString(1, word.getWord());
+        ResultSet rs = pstmt.executeQuery();
+        ArrayList<Word> wordList = new ArrayList<>();
+        while(rs.next()){
+            wordList.add(new Word(rs.getString("id"), rs.getString("word")));
+        }
+        return wordList;
+        
+    }
+    
     public void addDefinition(Word word, User user, String definition) throws SQLException{
         PreparedStatement pstmt = con.prepareStatement("INSERT INTO `definition` (`word_id`, `user_id`, `definition`) values(?, ?, ?)");
         pstmt.setString(1, word.getId());

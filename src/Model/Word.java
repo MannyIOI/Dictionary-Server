@@ -7,6 +7,8 @@ package Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -44,7 +46,7 @@ public class Word {
         return _word;
     }
 
-    public void setWord(String _word) {
+    public final void setWord(String _word) {
         this._word = _word;
     }
 
@@ -60,15 +62,22 @@ public class Word {
         this._definition.add(definition);
     }
 
-    @Override
-    public String toString() {
-        String res = getWord() + "\n\t";
-        List<String> defList = getDefinition();
-        for(int i = 0;i < defList.size();i++){
-            res += " - " + getDefinition().get(i);
-            res += "\n\t";
+    public String getString(){
+        JSONObject jsonResult = new JSONObject();
+        try{
+            jsonResult.put("id", getId());
+            jsonResult.put("word", getWord());
+            jsonResult.put("definition", getDefinition());
         }
-        return res;
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return jsonResult.toString();
+    }
+    
+    @Override
+    public String toString(){
+        return getString();
     }
     
     

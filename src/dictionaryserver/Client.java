@@ -25,8 +25,10 @@ public class Client {
         // information between client and client handler
 //        while (true) {
             System.out.println(dis.readUTF());
-            String tosend = "{'query': 'login', 'email': 'dhabtegabriel@gmail.com', 'password':'123456789'}";
+//            String tosend = "{'query': 'search', 'searchKey': 'dhabtegabriel@gmail.com', 'password':'123456789'}";
+            String tosend = "{'query': 'search', 'searchKey': 'l'}";
             dos.writeUTF(tosend);
+            
             // If client sends exit,close this connection
             // and then break from the while loop
             if (tosend.equals("Exit")) {
