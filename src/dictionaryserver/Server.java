@@ -5,7 +5,13 @@
  */
 package dictionaryserver;
 
+import Model.Database;
+import Model.User;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.*;
+import java.sql.SQLException;
 import java.text.*;
 import java.util.*;
 import java.net.*;
@@ -16,6 +22,7 @@ public class Server {
         ServerSocket ss = new ServerSocket(5056);
         // running infinite loop for getting
         // client request
+
         while (true) {
             Socket s = null;
             try {
@@ -24,10 +31,8 @@ public class Server {
                 s = ss.accept();
                 System.out.println("A new client is connected : " + s);
                 // obtaining input and out streams
-                DataInputStream dis = new
-                DataInputStream(s.getInputStream());
-                DataOutputStream dos = new
-                DataOutputStream(s.getOutputStream());
+                DataInputStream dis = new DataInputStream(s.getInputStream());
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
                 System.out.println("Assigning new thread for this client");
                 // create a new thread object
                 Thread t = new ClientHandler(s, dis, dos);
@@ -47,6 +52,8 @@ class ClientHandler extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
+
+    Database database = Database.getDatabase();
     // Constructor
     public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
@@ -60,8 +67,7 @@ class ClientHandler extends Thread {
         while (true) {
             try {
             // Ask user what he wants
-                dos.writeUTF("What do you want?[Date | Time]..\n" +
-                "Type Exit to terminate connection.");
+                dos.writeUTF("What do you want?");
                 // receive the answer from client
                 received = dis.readUTF();
                 if (received.equals("Exit")) {
@@ -71,25 +77,32 @@ class ClientHandler extends Thread {
                     System.out.println("Connection closed");
                     break;
                 }
-                // creating Date object
-                Date date = new Date();
-                // write on output stream based on the
-                // answer from the client
-                switch (received) {
-                    case "Date":
-                        toreturn = fordate.format(date);
-                        dos.writeUTF(toreturn);
+                System.out.println("received " + received);
+                JSONObject jsonObject = new JSONObject(received);
+
+                switch (jsonObject.getString("query")) {
+                    case "login":
+                        boolean isValid = Database.getDatabase().login(new User(jsonObject.getString("email"),jsonObject.getString("password")));
+                        if(isValid){
+                            System.out.println("You've logged in");
+                        }
+                        else {
+                            System.out.println("Wrong username and password");
+                        }
                         break;
-                    case "Time":
-                        toreturn = fortime.format(date);
-                        dos.writeUTF(toreturn);
+                    case "Search":
+                        System.out.println("You're in search");
+                        break;
+                    case "AddWord":
+                        System.out.println("You're in add word");
                         break;
                     default:
                         dos.writeUTF("Invalid input");
                         break;
                 }
-            } catch (IOException e) {
+            } catch (IOException| JSONException | SQLException e) {
                 e.printStackTrace();
+
             }
         }
         try {

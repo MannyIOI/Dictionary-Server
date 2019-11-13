@@ -17,10 +17,11 @@ import java.util.ArrayList;
  * @author hp
  */
 public class Database {
- 
+
+    private static Database db;
     Connection con;
     Statement stmt;
-    public Database(String databse, String username, String password){
+    public Database(String database, String username, String password){
 //        Exception
         try{
             Class.forName("com.mysql.jdbc.Driver");
@@ -31,6 +32,15 @@ public class Database {
             e.printStackTrace();
         }
         
+    }
+
+    public static Database getDatabase(){
+        if(db == null) {
+
+            db = new Database("dictionary", "root", "");
+            return db;
+        }
+        return db;
     }
     
     public User addUser(User user) throws SQLException{

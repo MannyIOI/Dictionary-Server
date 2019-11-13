@@ -23,9 +23,9 @@ public class Client {
         DataOutputStream dos = new DataOutputStream(s.getOutputStream());
         // the following loop performs the exchange of
         // information between client and client handler
-        while (true) {
+//        while (true) {
             System.out.println(dis.readUTF());
-            String tosend = scn.nextLine();
+            String tosend = "{'query': 'login', 'email': 'dhabtegabriel@gmail.com', 'password':'123456789'}";
             dos.writeUTF(tosend);
             // If client sends exit,close this connection
             // and then break from the while loop
@@ -33,13 +33,21 @@ public class Client {
                 System.out.println("Closing this connection : " + s);
                 s.close();
                 System.out.println("Connection closed");
-                break;
+                //break;
             }
             // printing date or time as requested by client
             String received = dis.readUTF();
             System.out.println(received);
-        }
-        // closing resources
+
+            tosend = "Exit";
+            dos.writeUTF(tosend);
+            // If client sends exit,close this connection
+            // and then break from the while loop
+            if (tosend.equals("Exit")) {
+                System.out.println("Closing this connection : " + s);
+                s.close();
+                System.out.println("Connection closed");
+            }
         scn.close();
         dis.close();
         dos.close();
