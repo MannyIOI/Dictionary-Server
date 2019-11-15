@@ -7,9 +7,8 @@ package dictionaryserver;
 
 import Model.Database;
 import Model.Word;
-import java.sql.SQLException;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+
 
 /**
  *
@@ -18,10 +17,17 @@ import org.json.JSONObject;
 public class DictionaryServer {
 
     public static void main(String[] args){
+        String filePath = "E:\\School Files\\4th\\1st Semester\\Distribution System Programming\\Project\\Assignment1\\database.json";
+        
         try{
-            System.out.println(Database.getDatabase().searchWord(new Word("%lo%")));
-//            System.out.println(json);
-        }catch(SQLException ex){
+            Database db = Database.getInstance(filePath);
+//            db.addWord(new Word("word2"));
+//            sdb.getWordDefinition("word");
+//            System.out.println(db.getWordDefinition("word2"));
+//                System.out.println(db.removeDefintion("word2"));
+            
+        }
+        catch(Exception ex){
             ex.printStackTrace();
         }
         

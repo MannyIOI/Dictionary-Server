@@ -15,8 +15,6 @@ import org.json.JSONObject;
  * @author hp
  */
 public class Word {
-    private String _id;
-
     
     private String _word;
     private List<String> _definition;
@@ -25,9 +23,13 @@ public class Word {
         setWord(word);
     }
     
-    public Word(String id, String word){
-        setId(id);
+    public Word(int id, String word){
         setWord(word);
+    }
+    
+    public Word(int id, ArrayList<String> defs){
+//        setId(id);
+        setDefinition(defs);
     }
     
     public Word(String word, List<String> definition){
@@ -35,13 +37,6 @@ public class Word {
         setDefinition(definition);
     }
     
-    public String getId() {
-        return _id;
-    }
-
-    public void setId(String _id) {
-        this._id = _id;
-    }
     public String getWord() {
         return _word;
     }
@@ -54,7 +49,7 @@ public class Word {
         return _definition;
     }
 
-    public void setDefinition(List<String> _definition) {
+    public final void setDefinition(List<String> _definition) {
         this._definition = _definition;
     }
     
@@ -65,7 +60,6 @@ public class Word {
     public String getString(){
         JSONObject jsonResult = new JSONObject();
         try{
-            jsonResult.put("id", getId());
             jsonResult.put("word", getWord());
             jsonResult.put("definition", getDefinition());
         }

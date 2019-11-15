@@ -5,108 +5,85 @@
  */
 package Model;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  *
  * @author hp
  */
 public class Database {
-
+    private final String fileLocation;
     private static Database db;
-    Connection con;
-    Statement stmt;
-    public Database(String database, String username, String password){
-//        Exception
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            this.con = DriverManager.getConnection("jdbc:mysql://localhost:3306/dictionary","root","");
-            this.stmt = con.createStatement();
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        
+    private Database(String fileLocation){
+        this.fileLocation = fileLocation;
     }
-
-    public static Database getDatabase(){
-        if(db == null) {
-
-            db = new Database("dictionary", "root", "");
-            return db;
-        }
+    
+    public static Database getInstance(String fileLocation){
+        if(db == null) db = new Database(fileLocation);
         return db;
     }
     
-    public User addUser(User user) throws SQLException{
-        PreparedStatement pstmt=con.prepareStatement("INSERT into `user` (`email`, `password`) values(?,?)");  
-        pstmt.setString(1, user.getEmail());
-        pstmt.setString(2, user.getPassword());
-        pstmt.executeUpdate();
-        pstmt = con.prepareStatement("SELECT * FROM user where user.email = ?");
-        pstmt.setString(1, user.getEmail());
-        ResultSet rs = pstmt.executeQuery();
-        rs.next();
-        return new User(rs.getString("id"), rs.getString("email"), rs.getString("password"));
-    }
-    
-    public boolean login(User user) throws SQLException{
-        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `user` WHERE user.email = (?) AND user.password = (?)");
-        pstmt.setString(1, user.getEmail());
-        pstmt.setString(2, user.getPassword());
-        ResultSet rs = pstmt.executeQuery();
-        if(rs.next()) return true;
-        return false;
-    }
-    
-    public Word addWord(Word word) throws SQLException{
-        PreparedStatement pstmt = con.prepareStatement("Insert into `word` (`word`) values(?)");
-        pstmt.setString(1, word.getWord());
-        pstmt.executeUpdate();
-        pstmt = con.prepareStatement("SELECT * FROM word where word.word = ?");
-        pstmt.setString(1, word.getWord());
-        pstmt.setString(1, word.getWord());
-        ResultSet rs = pstmt.executeQuery();
-        return new Word(rs.getString(0), rs.getString(1));
-    }
-    
-    public ArrayList<Word> searchWord(Word word) throws SQLException{
-        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `word` WHERE `word` LIKE ?");
-        pstmt.setString(1, word.getWord());
-        ResultSet rs = pstmt.executeQuery();
-        ArrayList<Word> wordList = new ArrayList<>();
-        while(rs.next()){
-            wordList.add(new Word(rs.getString("id"), rs.getString("word")));
-        }
-        return wordList;
+    synchronized public Word addWord(Word word) throws JSONException, IOException{
+        //TODO
+        String text = new String(Files.readAllBytes(Paths.get(this.fileLocation)), StandardCharsets.UTF_8);
+        JSONObject obj = new JSONObject(text);
         
-    }
-    
-    public void addDefinition(Word word, User user, String definition) throws SQLException{
-        PreparedStatement pstmt = con.prepareStatement("INSERT INTO `definition` (`word_id`, `user_id`, `definition`) values(?, ?, ?)");
-        pstmt.setString(1, word.getId());
-        pstmt.setString(2, user.getId());
-        pstmt.setString(3, definition);
-        pstmt.executeUpdate();
-    }
-    
-    public Word getDefinition(String word) throws SQLException, Exception{
-        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM `word`, `definition`, `user` WHERE definition.word_id = word.id AND definition.user_id = user.id AND word.word = (?)");
-        pstmt.setString(1, word);
-        ResultSet rs = pstmt.executeQuery();
-        Word resultWord = new Word(word, new ArrayList<>());
-        while(rs.next()){
-            
-            resultWord.setWord(word);
-            resultWord.addDefinition(rs.getString("definition"));
+        obj.put(word.getWord(), new ArrayList<>());
+        
+        try(FileWriter file = new FileWriter(this.fileLocation)){
+                file.write(obj.toString());
+                file.close();
         }
-        if (resultWord.getDefinition().size() < 1) throw new Exception("No Defintions Found for the Error");
-        return resultWord;
+        return new Word(word.getWord());
+    }
+    
+    synchronized public Word getWordDefinition(String word) throws JSONException, IOException{
+        //TODO
+        String text = new String(Files.readAllBytes(Paths.get(this.fileLocation)), StandardCharsets.UTF_8);
+        JSONObject obj = new JSONObject(text);
+        
+        JSONArray arr = obj.getJSONArray(word);
+        List<String> defs = new ArrayList<>();
+        for(int i = 0; i < arr.length(); i++){
+            defs.add(arr.getString(i));
+        }
+        return new Word(word, defs);
+    }
+    
+    synchronized public Word addDefinition(Word word) throws JSONException, IOException{
+        //TODO
+        String text = new String(Files.readAllBytes(Paths.get(this.fileLocation)), StandardCharsets.UTF_8);
+        JSONObject obj = new JSONObject(text);
+        for(int i = 0;i < word.getDefinition().size();i++){
+                obj.getJSONArray(word.getWord()).put(word.getDefinition().get(i));
+        }
+        try(FileWriter file = new FileWriter(this.fileLocation)){
+                file.write(obj.toString());
+                file.close();
+        }
+        
+        return word;
+    }
+    
+    synchronized public Word removeDefintion(String word) throws JSONException, IOException{
+        String text = new String(Files.readAllBytes(Paths.get(this.fileLocation)), StandardCharsets.UTF_8);
+        JSONObject obj = new JSONObject(text);
+        
+        obj.remove(word);
+        try(FileWriter file = new FileWriter(this.fileLocation)){
+                file.write(obj.toString());
+                file.close();
+        }
+        return new Word(word);
     }
     
     

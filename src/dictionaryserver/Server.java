@@ -53,8 +53,8 @@ class ClientHandler extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-
-    Database database = Database.getDatabase();
+    String fileLocation = "E:\\School Files\\4th\\1st Semester\\Distribution System Programming\\Project\\Assignment1\\database.json";
+    Database database = Database.getInstance(fileLocation);
     // Constructor
     public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
         this.s = s;
@@ -83,33 +83,26 @@ class ClientHandler extends Thread {
 
                 JSONObject jsonResult = new JSONObject();
                 switch (jsonRequest.getString("query")) {
-                    case "login":
-                        boolean isValid = Database.getDatabase().login(new User(jsonRequest.getString("email"),jsonRequest.getString("password")));
-                        if(isValid){
-                            jsonResult.put("res", true);
-                            jsonResult.put("message", "Valid Login information");
-                        }
-                        else {
-                            jsonResult.put("res", false);
-                            jsonResult.put("message", "Username or password incorrect");
-                        }
-                        dos.writeUTF(jsonResult.toString());
+                    case "getDefinition":
+                        jsonResult.put("res", database.getWordDefinition(jsonRequest.getString("word").toLowerCase()));
+                        jsonResult.put("mesage", "message of the operation being executed successfully");
                         break;
-                    case "search":
-//                        System.out.println(Database.getDatabase().searchWord(new Word(jsonRequest.getString("searchKey"))));
-                        jsonResult.put("res", Database.getDatabase().searchWord(new Word("%"+jsonRequest.getString("searchKey")+"%")));
-                        jsonResult.put("message", "These are the search results");
-                        dos.writeUTF(jsonResult.toString());
-                        break;
+                        
                     case "addWord":
-                        jsonResult.put("res", "addedWord");
-                        jsonResult.put("message", "This is the added word");
+                        jsonResult.put("res", "return the added word");
+                        jsonResult.put("message", "message of the operation being executed successfully");
                         dos.writeUTF(jsonResult.toString());
                         break;
-                    case "listAllWords":
-                        jsonResult.put("res", "allTheWordsList");
+                        
+                    case "getAllWords":
+                        jsonResult.put("res", "return all the list of the words in the database");
                         jsonResult.put("message", "This is the list of all the words");
                         dos.writeUTF(jsonResult.toString());
+                        break;
+                        
+                    case "removeWord":
+                        jsonResult.put("res", "return the added definition to the word");
+                        jsonResult.put("message", "");
                         break;
                     default:
                         jsonResult.put("res", "ERROR INPUT");
@@ -117,7 +110,9 @@ class ClientHandler extends Thread {
                         dos.writeUTF(jsonResult.toString());
                         break;
                 }
-            } catch (IOException| JSONException | SQLException e) {
+                
+                dos.writeUTF(jsonResult.toString());
+            } catch (IOException| JSONException e) {
                 e.printStackTrace();
 
             }
