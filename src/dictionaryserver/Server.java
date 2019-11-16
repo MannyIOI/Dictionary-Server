@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.text.*;
 import java.util.*;
 import java.net.*;
+import org.json.JSONArray;
 // Server class
 public class Server {
  public static void main(String[] args) throws IOException {
@@ -67,9 +68,7 @@ class ClientHandler extends Thread {
         String toreturn;
         while (true) {
             try {
-            // Ask user what he wants
-                dos.writeUTF("What do you want?");
-                // receive the answer from client
+                // receive the request from client
                 received = dis.readUTF();
                 if (received.equals("Exit")) {
                     System.out.println("Client " + this.s + " sends exit...");
@@ -89,20 +88,31 @@ class ClientHandler extends Thread {
                         break;
                         
                     case "addWord":
-                        jsonResult.put("res", "return the added word");
+                        ArrayList<String> defList = new ArrayList<>();
+                        JSONArray defListJson = jsonRequest.getJSONArray("def");
+                        for(int i = 0;i < defListJson.length();i++){
+                            defList.add(defListJson.getString(i));
+                        }
+                        Word word = new Word(jsonRequest.getString("newWord"), defList);
+                        
+                        jsonResult.put("res", database.addWord(word));
                         jsonResult.put("message", "message of the operation being executed successfully");
                         dos.writeUTF(jsonResult.toString());
                         break;
                         
                     case "getAllWords":
-                        jsonResult.put("res", "return all the list of the words in the database");
+                        jsonResult.put("res", database.getAllWords());
                         jsonResult.put("message", "This is the list of all the words");
                         dos.writeUTF(jsonResult.toString());
                         break;
                         
                     case "removeWord":
-                        jsonResult.put("res", "return the added definition to the word");
-                        jsonResult.put("message", "");
+                        jsonResult.put("res", database.removeDefintion(jsonRequest.getString("word")));
+                        jsonResult.put("message", "This");
+                        break;
+                    case "test":
+                        jsonResult.put("res", "test result");
+                        jsonResult.put("message", "test result");
                         break;
                     default:
                         jsonResult.put("res", "ERROR INPUT");

@@ -21,7 +21,10 @@ public class DictionaryServer {
         
         try{
             Database db = Database.getInstance(filePath);
-//            db.addWord(new Word("word2"));
+//            db
+            ArrayList<String> list = new ArrayList<>();
+            list.add("def21");
+            db.addWord(new Word("word2", list));
 //            sdb.getWordDefinition("word");
 //            System.out.println(db.getWordDefinition("word2"));
 //                System.out.println(db.removeDefintion("word2"));

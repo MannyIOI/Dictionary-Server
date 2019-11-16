@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,13 +38,13 @@ public class Database {
         String text = new String(Files.readAllBytes(Paths.get(this.fileLocation)), StandardCharsets.UTF_8);
         JSONObject obj = new JSONObject(text);
         
-        obj.put(word.getWord(), new ArrayList<>());
+        obj.put(word.getWord(), word.getDefinition());
         
         try(FileWriter file = new FileWriter(this.fileLocation)){
                 file.write(obj.toString());
                 file.close();
         }
-        return new Word(word.getWord());
+        return new Word(word.getWord(), word.getDefinition());
     }
     
     synchronized public Word getWordDefinition(String word) throws JSONException, IOException{
@@ -84,6 +85,19 @@ public class Database {
                 file.close();
         }
         return new Word(word);
+    }
+    
+    synchronized public ArrayList<Word> getAllWords() throws JSONException, IOException{
+        String text = new String(Files.readAllBytes(Paths.get(this.fileLocation)), StandardCharsets.UTF_8);
+        JSONObject obj = new JSONObject(text);
+        Iterator<String> keys = obj.keys();
+        ArrayList<Word> wordList = new ArrayList<>();
+        while(keys.hasNext()) {
+            String key = keys.next();
+            wordList.add(this.getWordDefinition(key));
+        }
+        return wordList;
+//        return 
     }
     
     
