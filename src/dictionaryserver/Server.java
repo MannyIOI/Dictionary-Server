@@ -83,8 +83,16 @@ class ClientHandler extends Thread {
                 JSONObject jsonResult = new JSONObject();
                 switch (jsonRequest.getString("query")) {
                     case "getDefinition":
+                        try{
                         jsonResult.put("res", database.getWordDefinition(jsonRequest.getString("word").toLowerCase()));
                         jsonResult.put("mesage", "message of the operation being executed successfully");
+                        }
+                        catch(JSONException ex){
+                            jsonResult.put("res", "INEXISTENT_WORD_ERROR");
+                            jsonResult.put("message", "Sorry the word" + jsonRequest.getString("word") +" does not exist");
+                            
+                        }
+                        dos.writeUTF(jsonResult.toString());
                         break;
                         
                     case "addWord":
@@ -121,7 +129,6 @@ class ClientHandler extends Thread {
                         break;
                 }
                 
-                dos.writeUTF(jsonResult.toString());
             } catch (IOException| JSONException e) {
                 e.printStackTrace();
 
