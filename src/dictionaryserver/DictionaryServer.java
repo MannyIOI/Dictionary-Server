@@ -7,6 +7,8 @@ package dictionaryserver;
 
 import Model.Database;
 import Model.Word;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 
@@ -16,23 +18,11 @@ import java.util.ArrayList;
  */
 public class DictionaryServer {
 
-    public static void main(String[] args){
-        String filePath = "E:\\School Files\\4th\\1st Semester\\Distribution System Programming\\Project\\Assignment1\\database.json";
-        
-        try{
-            Database db = Database.getInstance(filePath);
-//            db
-            ArrayList<String> list = new ArrayList<>();
-            list.add("def21");
-            db.addWord(new Word("word2", list));
-//            sdb.getWordDefinition("word");
-//            System.out.println(db.getWordDefinition("word2"));
-//                System.out.println(db.removeDefintion("word2"));
-            
-        }
-        catch(Exception ex){
-            ex.printStackTrace();
-        }
-        
+    public static void main(String[] args) throws IOException{
+//        String filePath = "E:\\School Files\\4th\\1st Semester\\Distribution System Programming\\Project\\Assignment1\\database.json";
+//        System.out.println(args[]);
+        Utility.PORT = Integer.parseInt(args[0]);
+        Utility.FILE_LOCATION = args[1];
+        Server.Start();
     }
 }

@@ -19,9 +19,9 @@ import java.net.*;
 import org.json.JSONArray;
 // Server class
 public class Server {
- public static void main(String[] args) throws IOException {
- // server is listening on port 5056
-        ServerSocket ss = new ServerSocket(5056);
+ public static void Start() throws IOException {
+        
+        ServerSocket ss = new ServerSocket(Utility.PORT);
         // running infinite loop for getting
         // client request
 
@@ -54,7 +54,7 @@ class ClientHandler extends Thread {
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-    String fileLocation = "E:\\School Files\\4th\\1st Semester\\Distribution System Programming\\Project\\Assignment1\\database.json";
+    String fileLocation = Utility.FILE_LOCATION;
     Database database = Database.getInstance(fileLocation);
     // Constructor
     public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) {
@@ -84,8 +84,8 @@ class ClientHandler extends Thread {
                 switch (jsonRequest.getString("query")) {
                     case "getDefinition":
                         try{
-                        jsonResult.put("res", database.getWordDefinition(jsonRequest.getString("word").toLowerCase()));
-                        jsonResult.put("mesage", "message of the operation being executed successfully");
+                            jsonResult.put("res", database.getWordDefinition(jsonRequest.getString("word").toLowerCase()));
+                            jsonResult.put("mesage", "message of the operation being executed successfully");
                         }
                         catch(JSONException ex){
                             jsonResult.put("res", "INEXISTENT_WORD_ERROR");
@@ -117,6 +117,7 @@ class ClientHandler extends Thread {
                     case "removeWord":
                         jsonResult.put("res", database.removeDefintion(jsonRequest.getString("word")));
                         jsonResult.put("message", "This");
+                        dos.writeUTF(jsonResult.toString());
                         break;
                     case "test":
                         jsonResult.put("res", "test result");

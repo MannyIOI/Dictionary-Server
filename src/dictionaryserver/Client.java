@@ -11,7 +11,7 @@ import java.net.*;
 import java.util.Scanner;
 // Client class
 public class Client {
-    public static void main(String[] args) throws IOException {
+    public static void Start(String[] args) throws IOException {
         try {
             Scanner scn = new Scanner(System.in);
             // getting localhost ip
